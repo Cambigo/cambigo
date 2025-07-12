@@ -1,8 +1,9 @@
 name: Code Standards Check
-
 on:
   pull_request_review:
-    types: [submitted,edited]
+    types:
+      - submitted
+      - edited
 
 jobs:
   cambigo:
@@ -18,19 +19,19 @@ jobs:
         run: |
           # Fetch the flow content
           curl -s "$CAMBIGO_CODING_STANDARDS" \
-               -H "Accept: application/json" \
-               -o CAMBIGO_CODING_STANDARDS.json
-          
+                -H "Accept: application/json" \
+                -o CAMBIGO_CODING_STANDARDS.json
+
           # Validate the response
           if ! jq empty CAMBIGO_CODING_STANDARDS.json 2>/dev/null; then
             echo "❌ Invalid JSON response from flow URL"
             exit 1
           fi
-          
+
           # Extract title and description for logging
           TITLE=$(jq -r '.title // "Unknown"' CAMBIGO_CODING_STANDARDS.json)
           VERSION=$(jq -r '.version // "1.0"' CAMBIGO_CODING_STANDARDS.json)
-          
+
           echo "✅ Fetched flow: $TITLE (v$VERSION)"
           echo "title=$TITLE" >> $GITHUB_OUTPUT
           echo "version=$VERSION" >> $GITHUB_OUTPUT
