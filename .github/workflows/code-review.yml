@@ -41,10 +41,11 @@ jobs:
           echo "🔍 Running standards validation..."
           # Add your specific validation commands
 
-      - name: Automatic PR Review
+      - name: Automated Validation with Claude
         uses: anthropics/claude-code-action@beta
         with:
           anthropic_api_key: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           timeout_minutes: "5"
           direct_prompt: |
             Review the CAMBIGO_CODING_STANDARDS.json document.
