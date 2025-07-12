@@ -1,0 +1,72 @@
+name: Code Standards Check
+
+on:
+  pull_request:
+  push:
+    branches: [test]
+
+jobs:
+  code-standards:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Fetch Code Standards Flow
+        id: fetch-standards
+        env:
+          CAMBIGO_CODING_STANDARDS: ${{ secrets.CAMBIGO_CODING_STANDARDS }}
+        run: |
+          # Fetch the flow content
+          curl -s "$CAMBIGO_CODING_STANDARDS" \
+               -H "Accept: application/json" \
+               -o CAMBIGO_CODING_STANDARDS.json
+          
+          # Validate the response
+          if ! jq empty CAMBIGO_CODING_STANDARDS.json 2>/dev/null; then
+            echo "❌ Invalid JSON response from flow URL"
+            exit 1
+          fi
+          
+          # Extract title and description for logging
+          TITLE=$(jq -r '.title // "Unknown"' CAMBIGO_CODING_STANDARDS.json)
+          VERSION=$(jq -r '.version // "1.0"' CAMBIGO_CODING_STANDARDS.json)
+          
+          echo "✅ Fetched flow: $TITLE (v$VERSION)"
+          echo "title=$TITLE" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Run Standards Validation
+        run: |
+          # Your validation logic here
+          # This could include:
+          # - ESLint with custom rules
+          # - Prettier formatting checks
+          # - Security scans
+          # - TypeScript strict mode checks
+          # - Go fmt/vet checks
+          
+          echo "🔍 Running standards validation..."
+          # Add your specific validation commands
+
+
+  test:
+      timeout-minutes: 60
+      runs-on: ubuntu-latest
+      steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+            node-version: lts/*
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+      - name: Run Playwright tests
+        run: npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+            name: playwright-report
+            path: playwright-report/
+            retention-days: 30
