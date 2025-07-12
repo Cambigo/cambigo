@@ -1,0 +1,69 @@
+name: Code Standards Check
+
+on:
+  pull_request_review:
+    types: [submitted,edited]
+
+jobs:
+  cambigo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Fetch Code Standards Flow
+        id: fetch-standards
+        env:
+          CAMBIGO_CODING_STANDARDS: ${{ secrets.CAMBIGO_CODING_STANDARDS }}
+        run: |
+          # Fetch the flow content
+          curl -s "$CAMBIGO_CODING_STANDARDS" \
+               -H "Accept: application/json" \
+               -o CAMBIGO_CODING_STANDARDS.json
+          
+          # Validate the response
+          if ! jq empty CAMBIGO_CODING_STANDARDS.json 2>/dev/null; then
+            echo "❌ Invalid JSON response from flow URL"
+            exit 1
+          fi
+          
+          # Extract title and description for logging
+          TITLE=$(jq -r '.title // "Unknown"' CAMBIGO_CODING_STANDARDS.json)
+          VERSION=$(jq -r '.version // "1.0"' CAMBIGO_CODING_STANDARDS.json)
+          
+          echo "✅ Fetched flow: $TITLE (v$VERSION)"
+          echo "title=$TITLE" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Run Standards Validation
+        run: |
+          echo "🔍 Running standards validation..."
+          # Add your specific validation commands
+
+      - name: Automated Validation with Claude
+        uses: anthropics/claude-code-action@beta
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          timeout_minutes: "5"
+          direct_prompt: |
+            Review the CAMBIGO_CODING_STANDARDS.json document.
+
+            Ensure this project adheres to the specified coding standards.
+
+  playwright:
+    name: 'Playwright Tests'
+    needs: cambigo 
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.54.0-noble
+      options: --user 1001
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+      - name: Install dependencies
+        run: npm ci
+      - name: Run tests
+        run: npx playwright test
