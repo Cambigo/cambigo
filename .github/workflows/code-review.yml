@@ -50,23 +50,18 @@ jobs:
           # Add your specific validation commands
 
 
-  test:
-      timeout-minutes: 60
-      runs-on: ubuntu-latest
-      steps:
+  playwright:
+    name: 'Playwright Tests'
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.54.0-noble
+      options: --user 1001
+    steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-            node-version: lts/*
+          node-version: lts/*
       - name: Install dependencies
         run: npm ci
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
-      - name: Run Playwright tests
+      - name: Run tests
         run: npx playwright test
-      - uses: actions/upload-artifact@v4
-        if: ${{ !cancelled() }}
-        with:
-            name: playwright-report
-            path: playwright-report/
-            retention-days: 30
