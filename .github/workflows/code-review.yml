@@ -1,9 +1,8 @@
 name: Code Standards Check
 
 on:
-  pull_request:
-  push:
-    branches: [test]
+  pull_request_review:
+    types: [submitted]
 
 jobs:
   cambigo:
