@@ -6,7 +6,7 @@ on:
     branches: [test]
 
 jobs:
-  code-standards:
+  cambigo:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -38,20 +38,22 @@ jobs:
 
       - name: Run Standards Validation
         run: |
-          # Your validation logic here
-          # This could include:
-          # - ESLint with custom rules
-          # - Prettier formatting checks
-          # - Security scans
-          # - TypeScript strict mode checks
-          # - Go fmt/vet checks
-          
           echo "🔍 Running standards validation..."
           # Add your specific validation commands
 
+      - name: Automatic PR Review
+        uses: anthropics/claude-code-action@beta
+        with:
+          anthropic_api_key: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          timeout_minutes: "5"
+          direct_prompt: |
+            Review the CAMBIGO_CODING_STANDARDS.json document.
+
+            Ensure this project adheres to the specified coding standards.
 
   playwright:
     name: 'Playwright Tests'
+    needs: cambigo 
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.54.0-noble
