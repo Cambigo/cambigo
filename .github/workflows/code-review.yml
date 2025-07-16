@@ -1,4 +1,4 @@
-name: Code Standards Check
+name: Cambigo Code Standards Check
 on:
   pull_request:
     types: [opened, synchronize]
