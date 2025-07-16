@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 // Environment variables - MANDATORY (as per test plan)
-const TEST_URL = process.env.TEST_CAMBIGO_FLOW_URL || 'https://cambigo.dev';
+const TEST_URL = process.env.TEST_CAMBIGO_FLOW_URL || 'https://dev.cambigo.io';
 const TEST_USER = process.env.TEST_CAMBIGO_FLOW_USER || '';
 const TEST_PASSWORD = process.env.TEST_CAMBIGO_FLOW_PASSWORD || '';
 
