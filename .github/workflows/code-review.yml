@@ -1,4 +1,4 @@
-name: Code Standards Check
+name: Cambigo Code Standards Check
 on:
   pull_request:
     types: [opened, synchronize]
@@ -66,7 +66,23 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
+      - name: Install pnpm
+        run: npm install -g pnpm
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
       - name: Run tests
+        timeout-minutes: 10
+        env:
+          TEST_CAMBIGO_FLOW_URL: ${{ secrets.TEST_CAMBIGO_FLOW_URL }}
+          TEST_CAMBIGO_FLOW_USER: ${{ secrets.TEST_CAMBIGO_FLOW_USER }}
+          TEST_CAMBIGO_FLOW_PASSWORD: ${{ secrets.TEST_CAMBIGO_FLOW_PASSWORD }}
         run: npx playwright test
+      - name: Upload Playwright artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
