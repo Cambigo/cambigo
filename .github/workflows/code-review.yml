@@ -79,7 +79,5 @@ jobs:
           name: playwright-artifacts
           path: |
             playwright-report/
-            **/screenshots/
-            **/videos/
-            **/trace.zip
+            test-results/
           if-no-files-found: ignore
