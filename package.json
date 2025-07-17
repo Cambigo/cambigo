@@ -1,0 +1,17 @@
+{
+  "name": "cambigo-assessment-and-validation",
+  "scripts": {
+    "test": "playwright test",
+    "e2e:headless": "playwright test --headed=false"
+  },
+  "devDependencies": {
+    "@clerk/testing": "latest",
+    "@playwright/test": "^1.54.0",
+    "typescript": "latest"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@clerk/shared"
+    ]
+  }
+}
